@@ -13,24 +13,68 @@ namespace DrawingIsFunKompas.ViewModels
     internal partial class MainWindowViewModel : ObservableObject
     {
         [ObservableProperty]
-        private string? _topDimensions;
+        private string _topDimensionsStr = "";
         [ObservableProperty]
-        private string? _bottomDimensions;
+        private string _bottomDimensionsStr = "";
         [ObservableProperty]
-        private string? _leftDimensions;
+        private string _leftDimensionsStr = "";
         [ObservableProperty]
-        private string? _rightDimensions;
+        private string _rightDimensionsStr = "";
 
         [ObservableProperty]
         private string? _info;
-
+        /// <summary>
+        /// Начертить накладку/отверстие
+        /// </summary>
         [RelayCommand]
         private void Drawing()
         {
-            foreach (var item in U.ParsingDimensions(TopDimensions))
+            Info = "";
+            double[]? topDimensions = U.ParsingDimensions(TopDimensionsStr);
+            double[]? bottomDimensions = U.ParsingDimensions(BottomDimensionsStr);
+            double[]? leftDimensions = U.ParsingDimensions(LeftDimensionsStr);
+            double[]? rightDimensions = U.ParsingDimensions(RightDimensionsStr);
+
+            #region Проверки введенных размеров
+            if ((topDimensions == null && bottomDimensions == null) || (leftDimensions == null && rightDimensions == null))
             {
-                MessageBox.Show($"{item}");
+                Info = "Введите размеры";
+                return;
             }
+            //Если введен только один размер из пары то приравниваем их
+            if (topDimensions == null && bottomDimensions != null)
+            {
+                topDimensions = bottomDimensions;
+            }
+            else if (bottomDimensions == null && topDimensions != null)
+            {
+                bottomDimensions = topDimensions;
+            }
+
+            if (leftDimensions == null && rightDimensions != null)
+            {
+                leftDimensions = rightDimensions;
+            }
+            else if (rightDimensions == null && leftDimensions != null)
+            {
+                rightDimensions = leftDimensions;
+            }
+            
+            //Проверка на null
+            if (topDimensions == null || bottomDimensions == null || leftDimensions == null || rightDimensions == null)
+            {
+                Info = "Проблема с размерами";
+                return;
+            }
+            //Количество шагов должно быть одинаковое в парных размерах
+            if (topDimensions.Length != bottomDimensions.Length || leftDimensions.Length != rightDimensions.Length)
+            {
+                Info = "Количество шагов должно быть одинаковое в парных размерах";
+                return;
+            }
+            #endregion
+
+
         }
     }
 }

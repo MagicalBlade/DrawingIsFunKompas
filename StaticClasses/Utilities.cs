@@ -8,9 +8,13 @@ namespace DrawingIsFunKompas.StaticClasses
 {
     internal static class Utilities
     {
-        public static double[] ParsingDimensions(string strDimensions)
+        public static double[]? ParsingDimensions(string strDimensions)
         {
             string[] dimensions = strDimensions.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (dimensions.Length == 0)
+            {
+                return null;
+            }
             double[] result = new double[dimensions.Length];
             for (int i = 0; i < dimensions.Length; i++)
             {
@@ -21,7 +25,7 @@ namespace DrawingIsFunKompas.StaticClasses
                 }
                 catch (FormatException)
                 {
-                    System.Windows.MessageBox.Show("Не верный формат");
+                    return null;
                 }
             }
             return result;
