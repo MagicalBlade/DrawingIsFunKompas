@@ -7,19 +7,51 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using U = DrawingIsFunKompas.StaticClasses.Utilities;
+using Dr = DrawingIsFunKompas.StaticClasses.Drawing;
+using System.ComponentModel.DataAnnotations;
 
 namespace DrawingIsFunKompas.ViewModels
 {
-    internal partial class MainWindowViewModel : ObservableObject
+    internal partial class MainWindowViewModel : ObservableValidator
     {
+        const string regDimensions = @"(\s*\d+(?(\.)\.\d+\s*|\s*))+";
+        /// <summary>
+        /// Верхний размер
+        /// </summary>
         [ObservableProperty]
-        private string _topDimensionsStr = "";
+        [NotifyDataErrorInfo]
+        [Required]
+        [RegularExpression(regDimensions)]
+        private string _topDimensionsStr = "80.00";
+
+
+        /// <summary>
+        /// Нижний размер
+        /// </summary>
         [ObservableProperty]
-        private string _bottomDimensionsStr = "";
+        [NotifyDataErrorInfo]
+        [Required]
+        [RegularExpression(regDimensions)]
+        private string _bottomDimensionsStr = "80.00";
+        /// <summary>
+        /// Левый размер
+        /// </summary>
         [ObservableProperty]
-        private string _leftDimensionsStr = "";
+        [NotifyDataErrorInfo]
+        [Required]
+        [RegularExpression(regDimensions)]
+        private string _leftDimensionsStr = "80.00";
+        /// <summary>
+        /// Правый размер
+        /// </summary>
         [ObservableProperty]
-        private string _rightDimensionsStr = "";
+        [NotifyDataErrorInfo]
+        [Required]
+        [RegularExpression(regDimensions)]
+        private string _rightDimensionsStr = "80.00";
+
+        [ObservableProperty]
+        private bool _isContour = true;
 
         [ObservableProperty]
         private string? _info;
@@ -72,8 +104,17 @@ namespace DrawingIsFunKompas.ViewModels
                 Info = "Количество шагов должно быть одинаковое в парных размерах";
                 return;
             }
+            //Проверка на прямоугольность
+            if (topDimensions.Sum() != bottomDimensions.Sum() || leftDimensions.Sum() != rightDimensions.Sum())
+            {
+                Info = "Сумма размеров параллельных сторон должны быть равны";
+            }
             #endregion
+            //Чертим контур детали
+            if (IsContour)
+            {
 
+            }
 
         }
     }
