@@ -14,7 +14,10 @@ namespace DrawingIsFunKompas.ViewModels
 {
     internal partial class MainWindowViewModel : ObservableValidator
     {
-        const string regDimensions = @"(\s*\d+(?(\.)\.\d+\s*|\s*))+";
+        /// <summary>
+        /// Валидация вводимы размеров
+        /// </summary>
+        const string regDimensions = @"((\s*\d+\*\d+(?(\.)\.\d+\s*|\s*))|(\s*\d+(?(\.)\.\d+\s*|\s*)))+"; //" 12.1 " или " 12 "
         /// <summary>
         /// Верхний размер
         /// </summary>
