@@ -20,39 +20,77 @@ namespace DrawingIsFunKompas.ViewModels
         /// <summary>
         /// Валидация вводимы размеров
         /// </summary>
-        const string regDimensions = @"((\s*\d+\*\d+(?(,),\d+\s*|\s*))|(\s*\d+(?(,),\d+\s*|\s*)))+"; //" 12,1 " или " 12 "
+        const string regDimensions = @"((\s*\d+\*\d+(?(,),\d+\s*|\s*))|(\s*\d+(?(,),\d+\s*|\s*)))+"; //" 12,1 " или " 12 " или " 3*25,1 "
+        const string regDimensionsHole = @"((\s*\d+(?(,),\d+\s*|\s*)))+"; //" 12,1 " или " 12 "
+        #region Размеры контура накладки
         /// <summary>
         /// Верхний размер
         /// </summary>
         [ObservableProperty]
         [NotifyDataErrorInfo]
         [Required]
-        [RegularExpression(regDimensions)]
-        private string _topDimensionsStr = "80,00";
+        [RegularExpression(regDimensionsHole)]
+        private string _topDimensionsStr = "200,00";
         /// <summary>
         /// Нижний размер
         /// </summary>
         [ObservableProperty]
         [NotifyDataErrorInfo]
         [Required]
-        [RegularExpression(regDimensions)]
-        private string _bottomDimensionsStr = "80,00";
+        [RegularExpression(regDimensionsHole)]
+        private string _bottomDimensionsStr = "200,00";
         /// <summary>
         /// Левый размер
         /// </summary>
         [ObservableProperty]
         [NotifyDataErrorInfo]
         [Required]
-        [RegularExpression(regDimensions)]
-        private string _leftDimensionsStr = "80,00";
+        [RegularExpression(regDimensionsHole)]
+        private string _leftDimensionsStr = "200,00";
         /// <summary>
         /// Правый размер
         /// </summary>
         [ObservableProperty]
         [NotifyDataErrorInfo]
         [Required]
+        [RegularExpression(regDimensionsHole)]
+        private string _rightDimensionsStr = "200,00";
+        #endregion
+
+        #region Размеры отверстий
+        /// <summary>
+        /// Верхний размер отверстий
+        /// </summary>
+        [ObservableProperty]
+        [NotifyDataErrorInfo]
+        [Required]
         [RegularExpression(regDimensions)]
-        private string _rightDimensionsStr = "80,00";
+        private string _topDimensionsHoleStr = "80,00";
+        /// <summary>
+        /// Нижний размер отверстий
+        /// </summary>
+        [ObservableProperty]
+        [NotifyDataErrorInfo]
+        [Required]
+        [RegularExpression(regDimensions)]
+        private string _bottomDimensionsHoleStr = "80,00";
+        /// <summary>
+        /// Левый размер отверстий
+        /// </summary>
+        [ObservableProperty]
+        [NotifyDataErrorInfo]
+        [Required]
+        [RegularExpression(regDimensions)]
+        private string _leftDimensionsHoleStr = "80,00";
+        /// <summary>
+        /// Правый размер отверстий
+        /// </summary>
+        [ObservableProperty]
+        [NotifyDataErrorInfo]
+        [Required]
+        [RegularExpression(regDimensions)]
+        private string _rightDimensionsHoleStr = "80,00"; 
+        #endregion
 
         [ObservableProperty]
         private bool _isContour = true;
@@ -88,7 +126,24 @@ namespace DrawingIsFunKompas.ViewModels
             }
 
             KompasObject kompas = (KompasObject)ExMarshal.GetActiveObject("KOMPAS.Application.5");
-            
+            IApplication application = (IApplication)kompas.ksGetApplication7();
+            IKompasDocument2D kompasDocument2D = (IKompasDocument2D)application.ActiveDocument;
+            IViewsAndLayersManager viewsAndLayersManager = kompasDocument2D.ViewsAndLayersManager;
+            IViews views = viewsAndLayersManager.Views;
+            IView view = views.ActiveView;
+            IDrawingContainer drawingContainer = (IDrawingContainer)view;
+            ILineSegments lineSegments = drawingContainer.LineSegments;
+            for (int v = 0; v < topDimensions.Length; v++)
+            {
+                ILineSegment lineSegment = lineSegments.Add();
+                lineSegment.X1 = topDimensions[v];
+                lineSegment.X2 = bottomDimensions[v];
+                lineSegment.Y1 = leftDimensions[0];
+                lineSegment.Y2 = leftDimensions.Sum() - leftDimensions[^1];
+                lineSegment.Style = 0;
+                lineSegment.Update();
+            }
+
 
             /*
             double[]? bottomDimensions = U.ParsingDimensions(BottomDimensionsStr);

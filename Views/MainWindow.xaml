@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DrawingIsFunKompas" xmlns:viewmodels="clr-namespace:DrawingIsFunKompas.ViewModels"
         mc:Ignorable="d"
-        Title="Чертить весело" Height="450" Width="800">
+        Title="Чертить весело" Height="450" Width="800" WindowStartupLocation="CenterScreen">
     <Window.DataContext>
         <viewmodels:MainWindowViewModel/>
     </Window.DataContext>
@@ -26,26 +26,52 @@
                     <Grid Grid.Row="0" Margin="3">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="25"/>
+                            <ColumnDefinition Width="25"/>
                             <ColumnDefinition/>
+                            <ColumnDefinition Width="25"/>
                             <ColumnDefinition Width="25"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="25"/>
+                            <RowDefinition Height="25"/>
                             <RowDefinition/>
                             <RowDefinition Height="25"/>
+                            <RowDefinition Height="25"/>
                         </Grid.RowDefinitions>
-                        <TextBox Text="{Binding LeftDimensionsStr, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Height="25" VerticalContentAlignment="Center" RenderTransformOrigin="0.5,0.5" >
+                        <TextBox Text="{Binding LeftDimensionsStr, UpdateSourceTrigger=PropertyChanged}" ToolTip="Левый размер контура накладки"
+                                 Grid.Column="0" Grid.Row="2" Height="25" VerticalContentAlignment="Center" RenderTransformOrigin="0.5,0.5" >
                             <TextBox.LayoutTransform>
                                 <RotateTransform Angle="-90"/>
                             </TextBox.LayoutTransform>
                         </TextBox>
-                        <TextBox Text="{Binding RightDimensionsStr, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Grid.Row="1" Height="25" VerticalContentAlignment="Center" RenderTransformOrigin="0.5,0.5" >
+
+                        <TextBox Text="{Binding LeftDimensionsHoleStr, UpdateSourceTrigger=PropertyChanged}" ToolTip="Левый размер отверстий"
+                                 Grid.Column="1" Grid.Row="2" Height="25" VerticalContentAlignment="Center" RenderTransformOrigin="0.5,0.5" >
                             <TextBox.LayoutTransform>
-                                <RotateTransform Angle="90"/>
+                                <RotateTransform Angle="-90"/>
                             </TextBox.LayoutTransform>
                         </TextBox>
-                        <TextBox Text="{Binding TopDimensionsStr, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="0" Height="25" VerticalContentAlignment="Center"/>
-                        <TextBox Text="{Binding BottomDimensionsStr, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="2" Height="25" VerticalContentAlignment="Center"/>
+
+                        <TextBox Text="{Binding RightDimensionsHoleStr, UpdateSourceTrigger=PropertyChanged}" ToolTip="Правый размер отверстий"
+                                 Grid.Column="3" Grid.Row="2" Height="25" VerticalContentAlignment="Center" RenderTransformOrigin="0.5,0.5" >
+                            <TextBox.LayoutTransform>
+                                <RotateTransform Angle="-90"/>
+                            </TextBox.LayoutTransform>
+                        </TextBox>
+                        <TextBox Text="{Binding RightDimensionsStr, UpdateSourceTrigger=PropertyChanged}" ToolTip="Правый размер контура накладки"
+                                 Grid.Column="4" Grid.Row="2" Height="25" VerticalContentAlignment="Center" RenderTransformOrigin="0.5,0.5" >
+                            <TextBox.LayoutTransform>
+                                <RotateTransform Angle="-90"/>
+                            </TextBox.LayoutTransform>
+                        </TextBox>
+                        <TextBox Text="{Binding TopDimensionsStr, UpdateSourceTrigger=PropertyChanged}" ToolTip="Верхний размер контура накладки"
+                                 Grid.Column="2" Grid.Row="0" Height="25" VerticalContentAlignment="Center"/>
+                        <TextBox Text="{Binding TopDimensionsHoleStr, UpdateSourceTrigger=PropertyChanged}" ToolTip="Верхний размер отверстий"
+                                 Grid.Column="2" Grid.Row="1" Height="25" VerticalContentAlignment="Center"/>
+                        <TextBox Text="{Binding BottomDimensionsHoleStr, UpdateSourceTrigger=PropertyChanged}" ToolTip="Нижний размер отверстий"
+                                 Grid.Column="2" Grid.Row="3" Height="25" VerticalContentAlignment="Center"/>
+                        <TextBox Text="{Binding BottomDimensionsStr, UpdateSourceTrigger=PropertyChanged}" ToolTip="Нижний размер контура накладки"
+                                 Grid.Column="2" Grid.Row="4" Height="25" VerticalContentAlignment="Center"/>
                     </Grid>
                     <StackPanel Grid.Row="1">
                         <CheckBox IsChecked="{Binding IsContour}" Content="Чертить контур" Margin="3"/>
