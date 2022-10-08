@@ -20,8 +20,8 @@ namespace DrawingIsFunKompas.ViewModels
         /// <summary>
         /// Валидация вводимы размеров
         /// </summary>
-        const string regDimensions = @"((\s*\d+\*\d+(?(,),\d+\s*|\s*))|(\s*\d+(?(,),\d+\s*|\s*)))+"; //" 12,1 " или " 12 " или " 3*25,1 "
-        const string regDimensionsHole = @"((\s*\d+(?(,),\d+\s*|\s*)))+"; //" 12,1 " или " 12 "
+        const string regDimensionsHole = @"((\s*\d+\*\d+(?(,),\d+\s*|\s*))|(\s*\d+(?(,),\d+\s*|\s*)))+"; //" 12,1 " или " 12 " или " 3*25,1 "
+        const string regDimensions = @"((\s*\d+(?(,),\d+\s*|\s*)))+"; //" 12,1 " или " 12 "
         #region Размеры контура накладки
         /// <summary>
         /// Верхний размер
@@ -29,32 +29,16 @@ namespace DrawingIsFunKompas.ViewModels
         [ObservableProperty]
         [NotifyDataErrorInfo]
         [Required]
-        [RegularExpression(regDimensionsHole)]
-        private string _topDimensionsStr = "200,00";
-        /// <summary>
-        /// Нижний размер
-        /// </summary>
-        [ObservableProperty]
-        [NotifyDataErrorInfo]
-        [Required]
-        [RegularExpression(regDimensionsHole)]
-        private string _bottomDimensionsStr = "200,00";
+        [RegularExpression(regDimensions)]
+        private string _withDimensionsStr = "200,00";
         /// <summary>
         /// Левый размер
         /// </summary>
         [ObservableProperty]
         [NotifyDataErrorInfo]
         [Required]
-        [RegularExpression(regDimensionsHole)]
-        private string _leftDimensionsStr = "200,00";
-        /// <summary>
-        /// Правый размер
-        /// </summary>
-        [ObservableProperty]
-        [NotifyDataErrorInfo]
-        [Required]
-        [RegularExpression(regDimensionsHole)]
-        private string _rightDimensionsStr = "200,00";
+        [RegularExpression(regDimensions)]
+        private string _heightDimensionsStr = "200,00";
         #endregion
 
         #region Размеры отверстий
@@ -64,7 +48,7 @@ namespace DrawingIsFunKompas.ViewModels
         [ObservableProperty]
         [NotifyDataErrorInfo]
         [Required]
-        [RegularExpression(regDimensions)]
+        [RegularExpression(regDimensionsHole)]
         private string _topDimensionsHoleStr = "80,00";
         /// <summary>
         /// Нижний размер отверстий
@@ -72,7 +56,7 @@ namespace DrawingIsFunKompas.ViewModels
         [ObservableProperty]
         [NotifyDataErrorInfo]
         [Required]
-        [RegularExpression(regDimensions)]
+        [RegularExpression(regDimensionsHole)]
         private string _bottomDimensionsHoleStr = "80,00";
         /// <summary>
         /// Левый размер отверстий
@@ -80,7 +64,7 @@ namespace DrawingIsFunKompas.ViewModels
         [ObservableProperty]
         [NotifyDataErrorInfo]
         [Required]
-        [RegularExpression(regDimensions)]
+        [RegularExpression(regDimensionsHole)]
         private string _leftDimensionsHoleStr = "80,00";
         /// <summary>
         /// Правый размер отверстий
@@ -88,7 +72,7 @@ namespace DrawingIsFunKompas.ViewModels
         [ObservableProperty]
         [NotifyDataErrorInfo]
         [Required]
-        [RegularExpression(regDimensions)]
+        [RegularExpression(regDimensionsHole)]
         private string _rightDimensionsHoleStr = "80,00"; 
         #endregion
 
@@ -104,25 +88,18 @@ namespace DrawingIsFunKompas.ViewModels
         private void Drawing()
         {
             Info = "";
-            double[]? topDimensions = new double[0];
+            double[]? withDimensions = new double[0];
             double[]? bottomDimensions = new double[0];
-            double[]? leftDimensions = new double[0];
+            double[]? heightDimensions = new double[0];
             double[]? rightDimensions = new double[0];
-            if (!GetErrors(nameof(TopDimensionsStr)).Any())
+            //Проверка на наличие ошибок в полях ввода
+            if (!GetErrors(nameof(WithDimensionsStr)).Any())
             {
-                topDimensions = U.ParsingDimensions(TopDimensionsStr).ToArray();
+                withDimensions = U.ParsingDimensions(WithDimensionsStr).ToArray();
             }
-            if (!GetErrors(nameof(BottomDimensionsStr)).Any())
+            if (!GetErrors(nameof(HeightDimensionsStr)).Any())
             {
-                bottomDimensions = U.ParsingDimensions(TopDimensionsStr).ToArray();
-            }
-            if (!GetErrors(nameof(LeftDimensionsStr)).Any())
-            {
-                leftDimensions = U.ParsingDimensions(TopDimensionsStr).ToArray();
-            }
-            if (!GetErrors(nameof(RightDimensionsStr)).Any())
-            {
-                rightDimensions = U.ParsingDimensions(TopDimensionsStr).ToArray();
+                heightDimensions = U.ParsingDimensions(HeightDimensionsStr).ToArray();
             }
 
             KompasObject kompas = (KompasObject)ExMarshal.GetActiveObject("KOMPAS.Application.5");
@@ -133,68 +110,19 @@ namespace DrawingIsFunKompas.ViewModels
             IView view = views.ActiveView;
             IDrawingContainer drawingContainer = (IDrawingContainer)view;
             ILineSegments lineSegments = drawingContainer.LineSegments;
-            for (int v = 0; v < topDimensions.Length; v++)
+            for (int v = 0; v < withDimensions.Length; v++)
             {
                 ILineSegment lineSegment = lineSegments.Add();
-                lineSegment.X1 = topDimensions[v];
+                lineSegment.X1 = withDimensions[v];
                 lineSegment.X2 = bottomDimensions[v];
-                lineSegment.Y1 = leftDimensions[0];
-                lineSegment.Y2 = leftDimensions.Sum() - leftDimensions[^1];
+                lineSegment.Y1 = heightDimensions[0];
+                lineSegment.Y2 = heightDimensions.Sum() - heightDimensions[^1];
                 lineSegment.Style = 0;
                 lineSegment.Update();
             }
 
 
-            /*
-            double[]? bottomDimensions = U.ParsingDimensions(BottomDimensionsStr);
-            double[]? leftDimensions = U.ParsingDimensions(LeftDimensionsStr);
-            double[]? rightDimensions = U.ParsingDimensions(RightDimensionsStr);
-
-            #region Проверки введенных размеров
-            if ((topDimensions == null && bottomDimensions == null) || (leftDimensions == null && rightDimensions == null))
-            {
-                Info = "Введите размеры";
-                return;
-            }
-            //Если введен только один размер из пары то приравниваем их
-            if (topDimensions == null && bottomDimensions != null)
-            {
-                topDimensions = bottomDimensions;
-            }
-            else if (bottomDimensions == null && topDimensions != null)
-            {
-                bottomDimensions = topDimensions;
-            }
-
-            if (leftDimensions == null && rightDimensions != null)
-            {
-                leftDimensions = rightDimensions;
-            }
-            else if (rightDimensions == null && leftDimensions != null)
-            {
-                rightDimensions = leftDimensions;
-            }
-            
-            //Проверка на null
-            if (topDimensions == null || bottomDimensions == null || leftDimensions == null || rightDimensions == null)
-            {
-                Info = "Проблема с размерами";
-                return;
-            }
-            //Количество шагов должно быть одинаковое в парных размерах
-            if (topDimensions.Length != bottomDimensions.Length || leftDimensions.Length != rightDimensions.Length)
-            {
-                Info = "Количество шагов должно быть одинаковое в парных размерах";
-                return;
-            }
-            //Проверка на прямоугольность
-            if (topDimensions.Sum() != bottomDimensions.Sum() || leftDimensions.Sum() != rightDimensions.Sum())
-            {
-                Info = "Сумма размеров параллельных сторон должны быть равны";
-            }
-            #endregion
-            */
-            //Чертим контур детали
+           
             if (IsContour)
             {
 
