@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,6 +47,21 @@ namespace DrawingIsFunKompas.StaticClasses
                 }
             }
             return result;
+        }
+
+        /// <summary>
+        /// Получение чистого имени файла
+        /// </summary>
+        /// <returns></returns>
+        public static string[] ClearNameFile()
+        {
+            FileInfo[] fileinfo = new DirectoryInfo($"{Directory.GetCurrentDirectory()}\\Data").GetFiles();
+            List<string> namefile = new();
+            foreach (var item in fileinfo)
+            {
+                namefile.Add(item.Name.Split('.')[0]);
+            }
+            return namefile.ToArray();
         }
     }
 }

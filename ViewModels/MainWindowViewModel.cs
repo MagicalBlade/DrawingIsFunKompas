@@ -41,7 +41,6 @@ namespace DrawingIsFunKompas.ViewModels
         [RegularExpression(regDimensions)]
         private string _heightDimensionsStr = "1200,00";
         #endregion
-
         #region Размеры отверстий
         /// <summary>
         /// Верхний размер отверстий
@@ -68,7 +67,10 @@ namespace DrawingIsFunKompas.ViewModels
         [RegularExpression(regDimensionsHole)]
         private string _heightDimensionsHoleStr = "45 80 80";
         #endregion
-
+        [ObservableProperty]
+        private string[] _holeDiameters = U.ClearNameFile();
+        [ObservableProperty]
+        private string _selectHoleDiameter = "25";
         [ObservableProperty]
         private bool _isContour = true;
 
@@ -149,7 +151,7 @@ namespace DrawingIsFunKompas.ViewModels
             IInsertionObjects insertionObjects = drawingContainer.InsertionObjects;
             IInsertionsManager insertionsManager = (IInsertionsManager)kompasDocument2D;
             InsertionDefinition insertionDefinition = insertionsManager.AddDefinition(
-                    Kompas6Constants.ksInsertionTypeEnum.ksTReferenceFragment, "", $"{Directory.GetCurrentDirectory()}\\Data\\D25.frw");
+                    Kompas6Constants.ksInsertionTypeEnum.ksTBodyFragment, "", $"{Directory.GetCurrentDirectory()}\\Data\\{SelectHoleDiameter}.frw");
             for (int h = 0; h < heightDimensionsHole.Length; h++)
             {
                 double x1 = ((withDimensions[0] - bottomDimensionsHole.Sum()) / 2) - ((middleTop - middlebottom) / (heightDimensionsHole.Length - 1) * h) / 2;
@@ -163,9 +165,7 @@ namespace DrawingIsFunKompas.ViewModels
                 lineSegment.Y1 = y;
                 lineSegment.Y2 = y;
                 lineSegment.Update();
-
-                
-                //double x = ((withDimensions[0] - bottomDimensionsHole.Sum()) / 2) - ((middleTop - middlebottom) / (heightDimensionsHole.Length - 1) * h) / 2;
+                //Вставка условного обозначения отверстий
                 for (int w = 0; w <= topDimensionsHole.Length / 2; w++)
                 {
                     IInsertionObject insertionObjectx1 = insertionObjects.Add(insertionDefinition);
