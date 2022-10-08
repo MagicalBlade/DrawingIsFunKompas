@@ -65,7 +65,7 @@ namespace DrawingIsFunKompas.ViewModels
         [NotifyDataErrorInfo]
         [Required]
         [RegularExpression(regDimensionsHole)]
-        private string _heightDimensionsHoleStr = "45 80 80 80 80 80 80";
+        private string _heightDimensionsHoleStr = "45 80 80";
         #endregion
 
         [ObservableProperty]
@@ -141,8 +141,22 @@ namespace DrawingIsFunKompas.ViewModels
                 xTop += topDimensionsHole[i];
                 xBottom += bottomDimensionsHole[i];
             }
-
-
+            //Чертим горизонтальные линии
+            double y = 0;
+            double middlebottom = bottomDimensionsHole[bottomDimensionsHole.Length / 2];
+            double middleTop = topDimensionsHole[topDimensionsHole.Length / 2];
+            for (int i = 0; i < heightDimensionsHole.Length; i++)
+            {
+                y += heightDimensionsHole[i];
+                ILineSegments lineSegments = drawingContainer.LineSegments;
+                ILineSegment lineSegment = lineSegments.Add();
+                lineSegment.Style = 2; //Тонкая линия
+                lineSegment.Y1 = y;
+                lineSegment.Y2 = y;
+                lineSegment.X1 = ((withDimensions[0] - bottomDimensionsHole.Sum()) / 2) - ((middleTop - middlebottom) / (heightDimensionsHole.Length - 1) * i) / 2;
+                lineSegment.X2 = ((withDimensions[0] + bottomDimensionsHole.Sum()) / 2) + ((middleTop - middlebottom) / (heightDimensionsHole.Length - 1) * i) / 2;
+                lineSegment.Update();
+            }
 
 
             if (IsContour)
