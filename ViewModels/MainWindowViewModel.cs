@@ -12,6 +12,7 @@ using System.ComponentModel.DataAnnotations;
 using KompasAPI7;
 using Kompas6API5;
 using DrawingIsFunKompas.StaticClasses;
+using System.IO;
 
 namespace DrawingIsFunKompas.ViewModels
 {
@@ -129,10 +130,10 @@ namespace DrawingIsFunKompas.ViewModels
                 ILineSegments lineSegments = drawingContainer.LineSegments;
                 ILineSegment lineSegment = lineSegments.Add();
                 lineSegment.Style = 2; //Тонкая линия
-                lineSegment.Y1 = heightDimensionsHole[0];
-                lineSegment.Y2 = heightDimensionsHole.Sum();
                 lineSegment.X1 = (withDimensions[0] - bottomDimensionsHole.Sum()) / 2 + xBottom;
                 lineSegment.X2 = (withDimensions[0] - topDimensionsHole.Sum()) / 2 + xTop;
+                lineSegment.Y1 = heightDimensionsHole[0];
+                lineSegment.Y2 = heightDimensionsHole.Sum();
                 lineSegment.Update();
                 if (i == topDimensionsHole.Length)
                 {
@@ -145,17 +146,37 @@ namespace DrawingIsFunKompas.ViewModels
             double y = 0;
             double middlebottom = bottomDimensionsHole[bottomDimensionsHole.Length / 2];
             double middleTop = topDimensionsHole[topDimensionsHole.Length / 2];
-            for (int i = 0; i < heightDimensionsHole.Length; i++)
+            IInsertionObjects insertionObjects = drawingContainer.InsertionObjects;
+            IInsertionsManager insertionsManager = (IInsertionsManager)kompasDocument2D;
+            InsertionDefinition insertionDefinition = insertionsManager.AddDefinition(
+                    Kompas6Constants.ksInsertionTypeEnum.ksTReferenceFragment, "", $"{Directory.GetCurrentDirectory()}\\Data\\D25.frw");
+            for (int h = 0; h < heightDimensionsHole.Length; h++)
             {
-                y += heightDimensionsHole[i];
+                double x1 = ((withDimensions[0] - bottomDimensionsHole.Sum()) / 2) - ((middleTop - middlebottom) / (heightDimensionsHole.Length - 1) * h) / 2;
+                double x2 = ((withDimensions[0] + bottomDimensionsHole.Sum()) / 2) + ((middleTop - middlebottom) / (heightDimensionsHole.Length - 1) * h) / 2;
+                y += heightDimensionsHole[h];
                 ILineSegments lineSegments = drawingContainer.LineSegments;
                 ILineSegment lineSegment = lineSegments.Add();
                 lineSegment.Style = 2; //Тонкая линия
+                lineSegment.X1 = x1;
+                lineSegment.X2 = x2;
                 lineSegment.Y1 = y;
                 lineSegment.Y2 = y;
-                lineSegment.X1 = ((withDimensions[0] - bottomDimensionsHole.Sum()) / 2) - ((middleTop - middlebottom) / (heightDimensionsHole.Length - 1) * i) / 2;
-                lineSegment.X2 = ((withDimensions[0] + bottomDimensionsHole.Sum()) / 2) + ((middleTop - middlebottom) / (heightDimensionsHole.Length - 1) * i) / 2;
                 lineSegment.Update();
+
+                
+                //double x = ((withDimensions[0] - bottomDimensionsHole.Sum()) / 2) - ((middleTop - middlebottom) / (heightDimensionsHole.Length - 1) * h) / 2;
+                for (int w = 0; w <= topDimensionsHole.Length / 2; w++)
+                {
+                    IInsertionObject insertionObjectx1 = insertionObjects.Add(insertionDefinition);
+                    insertionObjectx1.SetPlacement(x1, y, 0, false);
+                    insertionObjectx1.Update();
+                    IInsertionObject insertionObjectx2 = insertionObjects.Add(insertionDefinition);
+                    insertionObjectx2.SetPlacement(x2, y, 0, false);
+                    insertionObjectx2.Update();
+                    x1 += topDimensionsHole[w];
+                    x2 -= topDimensionsHole[w];
+                }
             }
 
 
