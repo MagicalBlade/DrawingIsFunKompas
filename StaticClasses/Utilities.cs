@@ -63,5 +63,48 @@ namespace DrawingIsFunKompas.StaticClasses
             }
             return namefile.ToArray();
         }
+        /// <summary>
+        /// Поиск трех одинаковых размеров, для объединения их в один
+        /// </summary>
+        /// <param name="sourse"></param>
+        /// <returns></returns>
+        public static double[] FindTriple(double[] sourse, ref List<string> prefix)
+        {
+            prefix.Clear();
+            List<double> result = new();
+            int counter = 0;
+            if (sourse.Length < 3)
+            {
+                return sourse;
+            }
+            for (int i = 0; i < sourse.Length - 1; i++)
+            {
+                while (i < sourse.Length - 1 && sourse[i] == sourse[i + 1])
+                {
+                    counter++;
+                    i++;
+                }
+                if (counter > 1)
+                {
+                    result.Add(sourse[i] * (counter + 1));
+                    prefix.Add($"{counter + 1}х{sourse[i]}=");
+                    counter = 0;
+                }
+                else if (counter == 1)
+                {
+                    result.Add(sourse[i - 1]);
+                    result.Add(sourse[i]);
+                    prefix.Add("");
+                    prefix.Add("");
+                    counter = 0;
+                }
+                else
+                {
+                    result.Add(sourse[i]);
+                    prefix.Add("");
+                }
+            }
+            return result.ToArray();
+        }
     }
 }
