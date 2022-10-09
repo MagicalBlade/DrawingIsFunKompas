@@ -39,7 +39,7 @@ namespace DrawingIsFunKompas.ViewModels
         [NotifyDataErrorInfo]
         [Required]
         [RegularExpression(regDimensions)]
-        private string _heightDimensionsStr = "1200,00";
+        private string _heightDimensionsStr = "730,00";
         #endregion
         #region Размеры отверстий
         /// <summary>
@@ -65,7 +65,7 @@ namespace DrawingIsFunKompas.ViewModels
         [NotifyDataErrorInfo]
         [Required]
         [RegularExpression(regDimensionsHole)]
-        private string _heightDimensionsHoleStr = "45 80 80";
+        private string _heightDimensionsHoleStr = "45 5*80 2*120";
         #endregion
         [ObservableProperty]
         private string[] _holeDiameters = U.ClearNameFile();
@@ -83,21 +83,21 @@ namespace DrawingIsFunKompas.ViewModels
         private void Drawing()
         {
             Info = "";
-            double[]? withDimensions = new double[0];
-            double[]? heightDimensions = new double[0];
+            double withDimensions =0;
+            double heightDimensions = 0;
 
-            double[]? topDimensionsHole = new double[0];
-            double[]? bottomDimensionsHole = new double[0];
-            double[]? heightDimensionsHole = new double[0];
+            double[] topDimensionsHole = new double[0];
+            double[] bottomDimensionsHole = new double[0];
+            double[] heightDimensionsHole = new double[0];
 
             //Проверка на наличие ошибок в полях ввода
             if (!GetErrors(nameof(WithDimensionsStr)).Any())
             {
-                withDimensions = U.ParsingDimensions(WithDimensionsStr).ToArray();
+                withDimensions = U.ParsingDimensions(WithDimensionsStr).ToArray()[0];
             }
             if (!GetErrors(nameof(HeightDimensionsStr)).Any())
             {
-                heightDimensions = U.ParsingDimensions(HeightDimensionsStr).ToArray();
+                heightDimensions = U.ParsingDimensions(HeightDimensionsStr).ToArray()[0];
             }
             if (!GetErrors(nameof(TopDimensionsHoleStr)).Any())
             {
@@ -132,8 +132,8 @@ namespace DrawingIsFunKompas.ViewModels
                 ILineSegments lineSegments = drawingContainer.LineSegments;
                 ILineSegment lineSegment = lineSegments.Add();
                 lineSegment.Style = 2; //Тонкая линия
-                lineSegment.X1 = (withDimensions[0] - bottomDimensionsHole.Sum()) / 2 + xBottom;
-                lineSegment.X2 = (withDimensions[0] - topDimensionsHole.Sum()) / 2 + xTop;
+                lineSegment.X1 = (withDimensions - bottomDimensionsHole.Sum()) / 2 + xBottom;
+                lineSegment.X2 = (withDimensions - topDimensionsHole.Sum()) / 2 + xTop;
                 lineSegment.Y1 = heightDimensionsHole[0];
                 lineSegment.Y2 = heightDimensionsHole.Sum();
                 lineSegment.Update();
@@ -145,18 +145,20 @@ namespace DrawingIsFunKompas.ViewModels
                 xBottom += bottomDimensionsHole[i];
             }
             //Чертим горизонтальные линии
-            double y = 0;
-            double middlebottom = bottomDimensionsHole[bottomDimensionsHole.Length / 2];
-            double middleTop = topDimensionsHole[topDimensionsHole.Length / 2];
+            double y = heightDimensionsHole[0];
+            heightDimensionsHole[0] = 0;
+            double x1 = (withDimensions - bottomDimensionsHole.Sum()) / 2;
+            double x2 = x1 + bottomDimensionsHole.Sum();
             IInsertionObjects insertionObjects = drawingContainer.InsertionObjects;
             IInsertionsManager insertionsManager = (IInsertionsManager)kompasDocument2D;
             InsertionDefinition insertionDefinition = insertionsManager.AddDefinition(
                     Kompas6Constants.ksInsertionTypeEnum.ksTBodyFragment, "", $"{Directory.GetCurrentDirectory()}\\Data\\{SelectHoleDiameter}.frw");
             for (int h = 0; h < heightDimensionsHole.Length; h++)
             {
-                double x1 = ((withDimensions[0] - bottomDimensionsHole.Sum()) / 2) - ((middleTop - middlebottom) / (heightDimensionsHole.Length - 1) * h) / 2;
-                double x2 = ((withDimensions[0] + bottomDimensionsHole.Sum()) / 2) + ((middleTop - middlebottom) / (heightDimensionsHole.Length - 1) * h) / 2;
                 y += heightDimensionsHole[h];
+                x1 -=  heightDimensionsHole[h] * (topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / 2 / (heightDimensionsHole.Sum() - heightDimensionsHole[0]);
+                x2 +=  heightDimensionsHole[h] * (topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / 2 / (heightDimensionsHole.Sum() - heightDimensionsHole[0]);
+
                 ILineSegments lineSegments = drawingContainer.LineSegments;
                 ILineSegment lineSegment = lineSegments.Add();
                 lineSegment.Style = 2; //Тонкая линия
@@ -166,19 +168,21 @@ namespace DrawingIsFunKompas.ViewModels
                 lineSegment.Y2 = y;
                 lineSegment.Update();
                 //Вставка условного обозначения отверстий
+                double xh1 = x1;
+                double xh2 = x2;
                 for (int w = 0; w <= topDimensionsHole.Length / 2; w++)
                 {
                     IInsertionObject insertionObjectx1 = insertionObjects.Add(insertionDefinition);
-                    insertionObjectx1.SetPlacement(x1, y, 0, false);
+                    insertionObjectx1.SetPlacement(xh1, y, 0, false);
                     insertionObjectx1.Update();
                     IInsertionObject insertionObjectx2 = insertionObjects.Add(insertionDefinition);
-                    insertionObjectx2.SetPlacement(x2, y, 0, false);
+                    insertionObjectx2.SetPlacement(xh2, y, 0, false);
                     insertionObjectx2.Update();
-                    x1 += topDimensionsHole[w];
-                    x2 -= topDimensionsHole[w];
+                    xh1 += topDimensionsHole[w];
+                    xh2 -= topDimensionsHole[w];
                 }
+                
             }
-
 
             if (IsContour)
             {
@@ -187,10 +191,53 @@ namespace DrawingIsFunKompas.ViewModels
                 IRectangle rectangle = rectangles.Add();
                 rectangle.X = 0;
                 rectangle.Y = 0;
-                rectangle.Height = heightDimensions[0];
-                rectangle.Width = withDimensions[0];
+                rectangle.Height = heightDimensions;
+                rectangle.Width = withDimensions;
                 rectangle.Style = 1; //Основная линия
                 rectangle.Update();
+            }
+
+            //Простановка размеров
+            double shift = 8 / view.Scale;
+            ISymbols2DContainer symbols2DContainer = (ISymbols2DContainer)view;
+            ILineDimensions lineDimensions = symbols2DContainer.LineDimensions;
+            //Горизонтальный размер контура
+            DrawingDimension(0, 0, withDimensions, 0, 0,- shift, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal);
+            //Вертикальный размер контура
+            DrawingDimension(0, 0, 0, heightDimensions, - shift, 1, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical);
+            /*
+            //Нижние горизонтальные размеры отверстий
+            double y1 = 0;
+            double y2 = 0;
+            for (int i = 0; i < heightDimensionsHole.Length; i++)
+            {
+                y2 += heightDimensionsHole[i];
+                double x1 = ((withDimensions - bottomDimensionsHole.Sum()) / 2) - ((topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / (heightDimensionsHole.Length - 1) * i) / 2;
+                double x2 = ((withDimensions - bottomDimensionsHole.Sum()) / 2) - ((topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / (heightDimensionsHole.Length - 1) * i + 1) / 2;
+                DrawingDimension(x1, y1, x2, y2, - shift, 10, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical);
+                y1 += heightDimensionsHole[i];
+            }
+            */
+
+
+            ///Методы
+            ///Черчение размеров
+            void DrawingDimension(double x1, double y1, double x2, double y2, double x3, double y3,
+                Kompas6Constants.ksLineDimensionOrientationEnum orientation)
+            {
+                ILineDimension linedimension = lineDimensions.Add();
+                IDimensionParams dimensionParams = (IDimensionParams)linedimension;
+                dimensionParams.ArrowType1 = Kompas6Constants.ksArrowEnum.ksNotch;
+                dimensionParams.ArrowType2 = Kompas6Constants.ksArrowEnum.ksNotch;
+
+                linedimension.Orientation = orientation;
+                linedimension.X1 = x1;
+                linedimension.Y1 = y1;
+                linedimension.X2 = x2;
+                linedimension.Y2 = y2;
+                linedimension.X3 = x3;
+                linedimension.Y3 = y3;
+                linedimension.Update();
             }
 
         }
