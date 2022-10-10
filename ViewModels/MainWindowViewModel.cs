@@ -202,22 +202,23 @@ namespace DrawingIsFunKompas.ViewModels
             ISymbols2DContainer symbols2DContainer = (ISymbols2DContainer)view;
             ILineDimensions lineDimensions = symbols2DContainer.LineDimensions;
 
-
-            //Нижние горизонтальные размеры отверстий
-            List<string> prefix = new List<string>();
-            double bdhShift = 8;
-            double[] bdh = U.FindTriple(bottomDimensionsHole, ref prefix, ref bdhShift);
+            #region Нижние горизонтальные размеры отверстий
+            double bottomRim = (withDimensions - bottomDimensionsHole.Sum()) / 2; //Обрез по нижнему краю
+            List<string> prefix = new List<string>(); //Превикс размера
+            double bdhShift = 8; //Смещиние размера относительно точек построения
+            List<double[]> bdhSingl = new(); //Координаты одиночного размера если есть объединенные размеры
+            double[] bdh = U.FindTriple(bottomDimensionsHole, ref prefix, ref bdhShift, ref bdhSingl);
             //Первый размер
-            DrawingDimension(0, 0, (withDimensions - bottomDimensionsHole.Sum()) / 2, heightDimensionsHole[0], 0, - bdhShift / view.Scale, 
+            DrawingDimension(0, 0, bottomRim, heightDimensionsHole[0], 0, -bdhShift / view.Scale,
                 Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, "", "");
             //Промежуточные размеры
-            double xbdh1 = (withDimensions - bdh.Sum()) / 2;
-            double xbdh2 = (withDimensions - bdh.Sum()) / 2 + bdh[0];
+            double xbdh1 = bottomRim;
+            double xbdh2 = bottomRim + bdh[0];
             for (int i = 0; i < bdh.Length; i++)
             {
                 DrawingDimension(xbdh1, heightDimensionsHole[0],
                     xbdh2, heightDimensionsHole[0],
-                    xbdh1 + (xbdh2 - xbdh1) / 2, - bdhShift / view.Scale,
+                    xbdh1 + (xbdh2 - xbdh1) / 2, -bdhShift / view.Scale,
                     Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, prefix[i], "");
                 if (i + 1 == bdh.Length)
                 {
@@ -226,10 +227,22 @@ namespace DrawingIsFunKompas.ViewModels
                 xbdh1 += bdh[i];
                 xbdh2 += bdh[i + 1];
             }
+            //Одиночные размеры если есть объединенные размеры
+            if (bdhSingl.Any())
+            {
+                for (int i = 0; i < bdhSingl.Count; i++)
+                {
+                    DrawingDimension(bdhSingl[i][0] + bottomRim, heightDimensionsHole[0],
+                    bdhSingl[i][1] + bottomRim, heightDimensionsHole[0],
+                    bdhSingl[i][0] + bottomRim + 1, -8 / view.Scale,
+                    Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, "", "");
+                }
+            }
             //Последний размер
-            DrawingDimension((withDimensions - bdh.Sum()) / 2 + bdh.Sum(), heightDimensionsHole[0],
-                (withDimensions - bdh.Sum()) + bdh.Sum(), 0,
-                withDimensions + 20, -bdhShift / view.Scale,Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, "", "*");
+            DrawingDimension(bottomRim + bdh.Sum(), heightDimensionsHole[0],
+                withDimensions, 0,
+                withDimensions + 20, -bdhShift / view.Scale, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, "", "*"); 
+            #endregion
 
 
             //Вертикальные размеры отверстий
