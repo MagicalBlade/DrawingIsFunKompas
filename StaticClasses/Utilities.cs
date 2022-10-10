@@ -68,7 +68,7 @@ namespace DrawingIsFunKompas.StaticClasses
         /// </summary>
         /// <param name="sourse"></param>
         /// <returns></returns>
-        public static double[] FindTriple(double[] sourse, ref List<string> prefix)
+        public static double[] FindTriple(double[] sourse, ref List<string> prefix, ref double shift)
         {
             prefix.Clear();
             List<double> result = new();
@@ -89,6 +89,7 @@ namespace DrawingIsFunKompas.StaticClasses
                     result.Add(sourse[i] * (counter + 1));
                     prefix.Add($"{counter + 1}х{sourse[i]}=");
                     counter = 0;
+                    shift = 18;
                 }
                 else if (counter == 1)
                 {

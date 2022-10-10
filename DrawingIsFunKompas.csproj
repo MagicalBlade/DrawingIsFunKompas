@@ -14,12 +14,15 @@
   <ItemGroup>
     <Reference Include="Kompas6API5">
       <HintPath>D:\C#\Docs\Kompas API\Common\Kompas6API5.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Kompas6Constants">
       <HintPath>D:\C#\Docs\Kompas API\Common\Kompas6Constants.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="KompasAPI7">
       <HintPath>D:\C#\Docs\Kompas API\Common\KompasAPI7.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
   </ItemGroup>
 
