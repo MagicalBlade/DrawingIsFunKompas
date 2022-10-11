@@ -289,24 +289,28 @@ namespace DrawingIsFunKompas.ViewModels
 
             
             #region Вертикальные размеры отверстий
-            double hdhShift = 8; //Смещиние размера относительно точек построения
+            double hdhShift = 4; //Смещиние размера относительно точек построения
             List<double[]> hdhSingl = new(); //Координаты одиночного размера если есть объединенные размеры
             double[] hdh = U.FindTriple(heightDimensionsHole, ref prefix, ref hdhShift, ref hdhSingl);
+            heightDimensionsHoletemp = new double[hdh.Length];
             hdh.CopyTo(heightDimensionsHoletemp, 0);
+            heightDimensionsHoletemp[0] = 0;
             //Первый размер
-            DrawingDimension(0, 0, bottomRim, heightDimensionsHole[0], - hdhShift / view.Scale, 1,
+            DrawingDimension(0, 0, bottomRim, heightDimensionsHole[0], -(hdhShift - 6) / view.Scale, 1,
                 Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, "", "");
 
             //Промежуточные размеры
             double xd1 = bottomRim;
+            double xd2 = bottomRim;
             double yhdh1 = hdh[0];
             double yhdh2 = hdh[0] + hdh[1];
             for (int i = 1; i < hdh.Length; i++)
             {
                 xd1 -= heightDimensionsHoletemp[i - 1] * (topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / 2 / heightDimensionsHoletemp.Sum();
+                xd2 -= heightDimensionsHoletemp[i] * (topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / 2 / heightDimensionsHoletemp.Sum();
                 DrawingDimension(xd1, yhdh1,
-                    bottomRim, yhdh2,
-                    - hdhShift / view.Scale , yhdh1 + (yhdh2 - yhdh1) / 2,
+                    xd2, yhdh2,
+                    - (hdhShift - 6) / view.Scale , yhdh1 + (yhdh2 - yhdh1) / 2,
                     Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, prefix[i], "");
                 if (i + 1 == hdh.Length)
                 {
@@ -318,11 +322,15 @@ namespace DrawingIsFunKompas.ViewModels
             //Одиночные размеры если есть объединенные размеры
             if (hdhSingl.Any())
             {
+                double x1singl;
+                double x2singl;
                 for (int i = 0; i < hdhSingl.Count; i++)
                 {
-                    DrawingDimension(bottomRim, hdhSingl[i][0],
-                    bottomRim, hdhSingl[i][1],
-                    - 8 / view.Scale, hdhSingl[i][0] + 1,
+                    x1singl = bottomRim - (hdhSingl[i][0] - hdhSingl[0][0]) * (topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / 2 / heightDimensionsHoletemp.Sum();
+                    x2singl = bottomRim - (hdhSingl[i][1] - hdhSingl[0][0]) * (topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / 2 / heightDimensionsHoletemp.Sum();
+                    DrawingDimension(x1singl, hdhSingl[i][0],
+                    x2singl, hdhSingl[i][1],
+                    - 4 / view.Scale, hdhSingl[i][0] + 1,
                     Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, "", "");
                 }
             }
@@ -330,14 +338,14 @@ namespace DrawingIsFunKompas.ViewModels
             //Последний размер
             DrawingDimension(topRim, heightDimensionsHole.Sum(),
                 0, heightDimensions,
-                - hdhShift / view.Scale, heightDimensions + 1,
+                - (hdhShift - 6) / view.Scale, heightDimensions + 1,
                 Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, "", "*");
             #endregion
 
             //Горизонтальный размер контура
             DrawingDimension(0, 0, withDimensions, 0, 0, - (bdhShift + 10) / view.Scale, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, "", "");
             //Вертикальный размер контура
-            DrawingDimension(0, 0, 0, heightDimensions, - (8 + hdhShift) / view.Scale, 1, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, "", "");
+            DrawingDimension(0, 0, 0, heightDimensions, - (2 + hdhShift) / view.Scale, 1, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, "", "");
 
 
             ///Методы
