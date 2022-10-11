@@ -71,14 +71,16 @@ namespace DrawingIsFunKompas.StaticClasses
         public static double[] FindTriple(double[] sourse, ref List<string> prefix, ref double shift, ref List<double[]> singl)
         {
             prefix.Clear();
-            List<double> result = new();
-            int counter = 0;
-            if (sourse.Length < 3)
+            if (sourse.Length == 1)
             {
+                prefix.Add("");
                 return sourse;
             }
-            for (int i = 0; i < sourse.Length - 1; i++)
+            List<double> result = new();
+            int counter = 0;
+            for (int i = 0; i < sourse.Length; i++)
             {
+
                 while (i < sourse.Length - 1 && sourse[i] == sourse[i + 1])
                 {
                     counter++;
