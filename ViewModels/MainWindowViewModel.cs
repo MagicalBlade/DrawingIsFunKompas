@@ -75,13 +75,18 @@ namespace DrawingIsFunKompas.ViewModels
         private bool _isContour = true;
 
         [ObservableProperty]
-        private string? _info;
+        private string _info = "";
         /// <summary>
         /// Начертить накладку/отверстие
         /// </summary>
         [RelayCommand]
         private void Drawing()
         {
+            if (!File.Exists($"{Directory.GetCurrentDirectory()}\\Data\\{SelectHoleDiameter}.frw"))
+            {
+                Info = "Не найден файл с обозначением отверстия. Проверьте наличие фрагментов в папке Data.";
+                return;
+            }
             Info = "";
             double withDimensions =0;
             double heightDimensions = 0;
@@ -127,6 +132,11 @@ namespace DrawingIsFunKompas.ViewModels
             }
             IApplication application = (IApplication)kompas.ksGetApplication7();
             IKompasDocument2D kompasDocument2D = (IKompasDocument2D)application.ActiveDocument;
+            if (kompasDocument2D == null)
+            {
+                Info = "Откройте или создайте чертеж или фрагмент";
+                return;
+            }
             IViewsAndLayersManager viewsAndLayersManager = kompasDocument2D.ViewsAndLayersManager;
             IViews views = viewsAndLayersManager.Views;
             IView view = views.ActiveView;

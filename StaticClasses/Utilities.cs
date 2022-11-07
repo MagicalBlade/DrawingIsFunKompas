@@ -55,6 +55,10 @@ namespace DrawingIsFunKompas.StaticClasses
         /// <returns></returns>
         public static string[] ClearNameFile()
         {
+            if (!Directory.Exists($"{Directory.GetCurrentDirectory()}\\Data"))
+            {
+                return new string[0];
+            }
             FileInfo[] fileinfo = new DirectoryInfo($"{Directory.GetCurrentDirectory()}\\Data").GetFiles();
             List<string> namefile = new();
             foreach (var item in fileinfo)
