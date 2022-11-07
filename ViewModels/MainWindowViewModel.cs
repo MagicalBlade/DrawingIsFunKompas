@@ -120,6 +120,11 @@ namespace DrawingIsFunKompas.ViewModels
             withDimensions += Math.Abs(topDimensionsHole.Sum() - bottomDimensionsHole.Sum());
 
             KompasObject kompas = (KompasObject)ExMarshal.GetActiveObject("KOMPAS.Application.5");
+            if (kompas == null)
+            {
+                Info = "Запустите компас";
+                return;
+            }
             IApplication application = (IApplication)kompas.ksGetApplication7();
             IKompasDocument2D kompasDocument2D = (IKompasDocument2D)application.ActiveDocument;
             IViewsAndLayersManager viewsAndLayersManager = kompasDocument2D.ViewsAndLayersManager;
@@ -287,7 +292,6 @@ namespace DrawingIsFunKompas.ViewModels
                 withDimensions + 20, heightDimensions + (tdhShift - 7) / view.Scale, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, "", "*");
             #endregion
 
-            
             #region Вертикальные размеры отверстий
             double hdhShift = 4; //Смещиние размера относительно точек построения
             List<double[]> hdhSingl = new(); //Координаты одиночного размера если есть объединенные размеры

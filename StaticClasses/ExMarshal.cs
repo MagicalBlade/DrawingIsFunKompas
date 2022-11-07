@@ -31,8 +31,15 @@ namespace DrawingIsFunKompas.StaticClasses
             {
                 CLSIDFromProgID(progID, out clsid);
             }
+            try
+            {
+                GetActiveObject(ref clsid, IntPtr.Zero, out obj);
 
-            GetActiveObject(ref clsid, IntPtr.Zero, out obj);
+            }
+            catch (Exception)
+            {
+                return obj;
+            }
             return obj;
         }
 
