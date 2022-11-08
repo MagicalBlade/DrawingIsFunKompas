@@ -137,6 +137,10 @@ namespace DrawingIsFunKompas.ViewModels
                 Info = "Откройте или создайте чертеж или фрагмент";
                 return;
             }
+            //Получаю интерфейс документ версии API5
+            ksDocument2D document2DAPI5 = kompas.TransferInterface(kompasDocument2D, 1,0);
+            //Включаем объединение "отмены"
+            document2DAPI5.ksUndoContainer(true);
             IViewsAndLayersManager viewsAndLayersManager = kompasDocument2D.ViewsAndLayersManager;
             IViews views = viewsAndLayersManager.Views;
             IView view = views.ActiveView;
@@ -373,6 +377,7 @@ namespace DrawingIsFunKompas.ViewModels
                 Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, "", "*");
             }
             #endregion
+
             if (IsContour)
             {
                 //Горизонтальный размер контура
@@ -380,7 +385,8 @@ namespace DrawingIsFunKompas.ViewModels
                 //Вертикальный размер контура
                 DrawingDimension(0, 0, 0, heightDimensions, - (2 + hdhShift) / view.Scale, 1, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, "", "");
             }
-
+            //Включаем объединение "отмены"
+            document2DAPI5.ksUndoContainer(false);
 
             ///Методы
             ///Черчение размеров
