@@ -198,9 +198,11 @@ namespace DrawingIsFunKompas.ViewModels
                     IInsertionObject insertionObjectx1 = insertionObjects.Add(insertionDefinition);
                     insertionObjectx1.SetPlacement(xh1, y, 0, false);
                     insertionObjectx1.Update();
+                    document2DAPI5.ksDestroyObjects(insertionObjectx1.Reference);
                     IInsertionObject insertionObjectx2 = insertionObjects.Add(insertionDefinition);
                     insertionObjectx2.SetPlacement(xh2, y, 0, false);
                     insertionObjectx2.Update();
+                    document2DAPI5.ksDestroyObjects(insertionObjectx2.Reference);
                     xh1 += topDimensionsHole[w];
                     xh2 -= topDimensionsHole[w];
                 }
