@@ -25,7 +25,7 @@ namespace DrawingIsFunKompas.ViewModels
         const string regDimensions = @"((\s*\d+(?(,),\d+\s*|\s*)))"; //" 12,1 " или " 12 " без повторенияЮ только одно число
         #region Размеры контура накладки
         /// <summary>
-        /// Верхний размер
+        /// Ширина накладки
         /// </summary>
         [ObservableProperty]
         [NotifyDataErrorInfo]
@@ -33,13 +33,29 @@ namespace DrawingIsFunKompas.ViewModels
         [RegularExpression(regDimensions)]
         private string _withDimensionsStr = "680,00";
         /// <summary>
-        /// Левый размер
+        /// Допуск на ширину накладки
+        /// </summary>
+        [ObservableProperty]
+        [NotifyDataErrorInfo]
+        [Required]
+        [RegularExpression(regDimensions)]
+        private string _withToleranceStr = "1";
+        /// <summary>
+        /// Высота накладки
         /// </summary>
         [ObservableProperty]
         [NotifyDataErrorInfo]
         [Required]
         [RegularExpression(regDimensions)]
         private string _heightDimensionsStr = "730,00";
+        /// <summary>
+        /// Допуск на высоту накладки
+        /// </summary>
+        [ObservableProperty]
+        [NotifyDataErrorInfo]
+        [Required]
+        [RegularExpression(regDimensions)]
+        private string _heightToleranceStr = "1";
         #endregion
         #region Размеры отверстий
         /// <summary>
@@ -383,9 +399,9 @@ namespace DrawingIsFunKompas.ViewModels
             if (IsContour)
             {
                 //Горизонтальный размер контура
-                DrawingDimension(0, 0, withDimensions, 0, 0, - (bdhShift + 10) / view.Scale, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, "", "");
+                DrawingDimension(0, 0, withDimensions, 0, 0, - (bdhShift + 10) / view.Scale, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, "", "", WithToleranceStr);
                 //Вертикальный размер контура
-                DrawingDimension(0, 0, 0, heightDimensions, - (2 + hdhShift) / view.Scale, 1, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, "", "");
+                DrawingDimension(0, 0, 0, heightDimensions, - (2 + hdhShift) / view.Scale, 1, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, "", "", HeightToleranceStr);
             }
             //Включаем объединение "отмены"
             document2DAPI5.ksUndoContainer(false);
@@ -393,7 +409,7 @@ namespace DrawingIsFunKompas.ViewModels
             ///Методы
             ///Черчение размеров
             void DrawingDimension(double x1, double y1, double x2, double y2, double x3, double y3,
-                Kompas6Constants.ksLineDimensionOrientationEnum orientation, string prefix, string suffix)
+                Kompas6Constants.ksLineDimensionOrientationEnum orientation, string prefix, string suffix, string tolerance = "")
             {
                 ILineDimension linedimension = lineDimensions.Add();
                 IDimensionParams dimensionParams = (IDimensionParams)linedimension;
@@ -411,6 +427,15 @@ namespace DrawingIsFunKompas.ViewModels
                 linedimension.Y2 = y2;
                 linedimension.X3 = x3;
                 linedimension.Y3 = y3;
+
+                if (tolerance != "")
+                {
+                    dimensionText.DeviationOn = true;
+                    dimensionText.HighDeviation.Str = tolerance;
+                    dimensionText.LowDeviation.Str = "-" + tolerance;
+                    dimensionText.DeviationType = Kompas6Constants.ksDimensionDeviationEnum.ksDimDeviation;
+                }
+
                 linedimension.Update();
             }
 
