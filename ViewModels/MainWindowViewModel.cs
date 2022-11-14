@@ -19,6 +19,11 @@ namespace DrawingIsFunKompas.ViewModels
     internal partial class MainWindowViewModel : ObservableValidator
     {
         /// <summary>
+        /// Марка накладки
+        /// </summary>
+        [ObservableProperty]
+        private string _nameMark = "";
+        /// <summary>
         /// Валидация вводимы размеров
         /// </summary>
         const string regDimensionsHole = @"((\s*\d+\*\d+(?(,),\d+\s*|\s*))|(\s*\d+(?(,),\d+\s*|\s*)))+"; //" 12,1 " или " 12 " или " 3*25,1 " с повторением
@@ -98,40 +103,28 @@ namespace DrawingIsFunKompas.ViewModels
         [RelayCommand]
         private void Drawing()
         {
+            Info = "";
             if (!File.Exists($"{Directory.GetCurrentDirectory()}\\Data\\{SelectHoleDiameter}.frw"))
             {
                 Info = "Не найден файл с обозначением отверстия. Проверьте наличие фрагментов в папке Data.";
                 return;
             }
-            Info = "";
-            double withDimensions =0;
-            double heightDimensions = 0;
-
-            double[] topDimensionsHole = new double[0];
-            double[] bottomDimensionsHole = new double[0];
-            double[] heightDimensionsHole = new double[0];
-
             //Проверка на наличие ошибок в полях ввода
-            if (!GetErrors(nameof(WithDimensionsStr)).Any())
-            {
-                withDimensions = U.ParsingDimensions(WithDimensionsStr).ToArray()[0];
-            }
-            if (!GetErrors(nameof(HeightDimensionsStr)).Any())
-            {
-                heightDimensions = U.ParsingDimensions(HeightDimensionsStr).ToArray()[0];
-            }
-            if (!GetErrors(nameof(TopDimensionsHoleStr)).Any())
-            {
-                topDimensionsHole = U.ParsingDimensions(TopDimensionsHoleStr).ToArray();
-            }
-            if (!GetErrors(nameof(BottomDimensionsHoleStr)).Any())
-            {
-                bottomDimensionsHole = U.ParsingDimensions(BottomDimensionsHoleStr).ToArray();
-            }
-            if (!GetErrors(nameof(HeightDimensionsHoleStr)).Any())
-            {
-                heightDimensionsHole = U.ParsingDimensions(HeightDimensionsHoleStr).ToArray();
-            }
+            if (GetErrors(nameof(WithDimensionsStr)).Any()) return;
+            if (GetErrors(nameof(HeightDimensionsStr)).Any()) return;
+            if (GetErrors(nameof(TopDimensionsHoleStr)).Any()) return;
+            if (GetErrors(nameof(BottomDimensionsHoleStr)).Any()) return;
+            if (GetErrors(nameof(HeightDimensionsHoleStr)).Any()) return;
+            if (GetErrors(nameof(HeightToleranceStr)).Any()) return;
+            if (GetErrors(nameof(WithToleranceStr)).Any()) return;
+
+
+            double withDimensions = U.ParsingDimensions(WithDimensionsStr).ToArray()[0];
+            double heightDimensions = U.ParsingDimensions(HeightDimensionsStr).ToArray()[0];
+            double[] topDimensionsHole = U.ParsingDimensions(TopDimensionsHoleStr).ToArray();
+            double[] bottomDimensionsHole = U.ParsingDimensions(BottomDimensionsHoleStr).ToArray();
+            double[] heightDimensionsHole = U.ParsingDimensions(HeightDimensionsHoleStr).ToArray();
+
             if (topDimensionsHole.Length != bottomDimensionsHole.Length)
             {
                 Info = "Шаги верхних и нижних размеров, по отверстиям, должны быть равны.";
@@ -396,6 +389,7 @@ namespace DrawingIsFunKompas.ViewModels
             }
             #endregion
 
+            //Габаритные размеры накладки
             if (IsContour)
             {
                 //Горизонтальный размер контура
@@ -403,6 +397,28 @@ namespace DrawingIsFunKompas.ViewModels
                 //Вертикальный размер контура
                 DrawingDimension(0, 0, 0, heightDimensions, - (2 + hdhShift) / view.Scale, 1, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, "", "", HeightToleranceStr);
             }
+
+            //Вставляем текст с названием марки
+            if (NameMark != "")
+            {
+                IDrawingTexts drawingTexts = drawingContainer.DrawingTexts;
+                IDrawingText drawingText = drawingTexts.Add();
+                drawingText.Allocation = Kompas6Constants.ksAllocationEnum.ksAlCentre;
+                drawingText.X = withDimensions / 2;
+                drawingText.Y = heightDimensions + 20 / view.Scale;
+                IText text = (IText)drawingText;
+                text.Str = NameMark;
+                ITextLine textline = text.TextLine[0];
+                object[] textItems = textline.TextItems;
+                foreach (ITextItem item in textItems)
+                {
+                    ITextFont textFont = (ITextFont)item;
+                    textFont.Underline = true;
+                    item.Update();
+                }
+                drawingText.Update();
+            }
+
             //Включаем объединение "отмены"
             document2DAPI5.ksUndoContainer(false);
 
