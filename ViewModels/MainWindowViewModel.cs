@@ -88,12 +88,31 @@ namespace DrawingIsFunKompas.ViewModels
         [RegularExpression(regDimensionsHole)]
         private string _heightDimensionsHoleStr = "45 5*80 2*120";
         #endregion
+        /// <summary>
+        /// Список диаметров отверстий
+        /// </summary>
         [ObservableProperty]
         private string[] _holeDiameters = U.ClearNameFile();
+        /// <summary>
+        /// Выбранный диаметра отверстия
+        /// </summary>
         [ObservableProperty]
         private string _selectHoleDiameter = "25";
+        /// <summary>
+        /// Черить контур?
+        /// </summary>
         [ObservableProperty]
         private bool _isContour = true;
+        /// <summary>
+        /// Вставлять плавку?
+        /// </summary>
+        [ObservableProperty]
+        private bool _isMelt = true;
+        /// <summary>
+        /// Вставлять маркировку?
+        /// </summary>
+        [ObservableProperty]
+        private bool _isNameMark = true;
 
         [ObservableProperty]
         private string _info = "";
@@ -217,6 +236,43 @@ namespace DrawingIsFunKompas.ViewModels
                 }
             }
 
+            //Вставка плавки
+            if(IsMelt)
+            {
+                InsertionDefinition iDMelt = insertionsManager.AddDefinition(
+                    Kompas6Constants.ksInsertionTypeEnum.ksTBodyFragment, "", $"{Directory.GetCurrentDirectory()}\\Data\\Плавка.frw");
+                IInsertionObject iOMelt = insertionObjects.Add(iDMelt);
+                if (heightDimensionsHole.Length > 2)
+                {
+                    iOMelt.SetPlacement(withDimensions / 2, heightDimensionsHole[0] + heightDimensionsHole[1] / 2, 0, false);
+                }
+                else
+                {
+                    iOMelt.SetPlacement(withDimensions / 2, heightDimensions / 2, 0, false);
+                }
+                iOMelt.Update();
+            }
+            //Вставка маркировки
+            if(IsNameMark)
+            {
+                InsertionDefinition iDNameMArk = insertionsManager.AddDefinition(
+                    Kompas6Constants.ksInsertionTypeEnum.ksTBodyFragment, "", $"{Directory.GetCurrentDirectory()}\\Data\\Маркировка.frw");
+                IInsertionObject iONameMArk = insertionObjects.Add(iDNameMArk);
+                if (heightDimensionsHole.Length > 2)
+                {
+                    iONameMArk.SetPlacement(withDimensions / 2, heightDimensionsHole[0] + heightDimensionsHole[1] + heightDimensionsHole[2] / 2, 0, false);
+                }
+                else if(bottomDimensionsHole.Length > 1)
+                {
+                    iONameMArk.SetPlacement(withDimensions / 2 + bottomDimensionsHole[bottomDimensionsHole.Length / 2], heightDimensions / 2, 0, false);
+                }
+                else
+                {
+                    iONameMArk.SetPlacement(withDimensions / 2, heightDimensions / 2 + 70, 0, false);
+                }
+                iONameMArk.Update();
+            }
+
             if (IsContour)
             {
                 //Чертим контур накладки
@@ -240,6 +296,7 @@ namespace DrawingIsFunKompas.ViewModels
             double bdhShift = 8; //Смещиние размера относительно точек построения
             List<double[]> bdhSingl = new(); //Координаты одиночного размера если есть объединенные размеры
             double[] bdh = U.FindTriple(bottomDimensionsHole, ref prefix, ref bdhShift, ref bdhSingl);
+            if (bdhSingl.Any()) bdhShift = 18;
             //Первый размер
             if (IsContour)
             {
@@ -287,6 +344,7 @@ namespace DrawingIsFunKompas.ViewModels
             double tdhShift = 12; //Смещиние размера относительно точек построения
             List<double[]> tdhSingl = new(); //Координаты одиночного размера если есть объединенные размеры
             double[] tdh = U.FindTriple(topDimensionsHole, ref prefix, ref tdhShift, ref tdhSingl);
+            if (tdhSingl.Any()) tdhShift = 18;
             //Первый размер
             if (IsContour)
             {
@@ -339,7 +397,7 @@ namespace DrawingIsFunKompas.ViewModels
             //Первый размер
             if (IsContour)
             {
-                DrawingDimension(0, 0, bottomRim, heightDimensionsHole[0], -(hdhShift - 6) / view.Scale, 1,
+                DrawingDimension(0, 0, bottomRim, heightDimensionsHole[0], -(hdhShift) / view.Scale, 1,
                 Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, "", "");
             }
 
@@ -354,7 +412,7 @@ namespace DrawingIsFunKompas.ViewModels
                 xd2 -= heightDimensionsHoletemp[i] * (topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / 2 / heightDimensionsHoletemp.Sum();
                 DrawingDimension(xd1, yhdh1,
                     xd2, yhdh2,
-                    - (hdhShift - 6) / view.Scale , yhdh1 + (yhdh2 - yhdh1) / 2,
+                    - (hdhShift) / view.Scale , yhdh1 + (yhdh2 - yhdh1) / 2,
                     Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, prefix[i], "");
                 if (i + 1 == hdh.Length)
                 {
@@ -384,7 +442,7 @@ namespace DrawingIsFunKompas.ViewModels
             {
                 DrawingDimension(topRim, heightDimensionsHole.Sum(),
                 0, heightDimensions,
-                - (hdhShift - 6) / view.Scale, heightDimensions + 1,
+                - (hdhShift) / view.Scale, heightDimensions + 1,
                 Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, "", "*");
             }
             #endregion
@@ -395,7 +453,7 @@ namespace DrawingIsFunKompas.ViewModels
                 //Горизонтальный размер контура
                 DrawingDimension(0, 0, withDimensions, 0, 0, - (bdhShift + 10) / view.Scale, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, "", "", WithToleranceStr);
                 //Вертикальный размер контура
-                DrawingDimension(0, 0, 0, heightDimensions, - (2 + hdhShift) / view.Scale, 1, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, "", "", HeightToleranceStr);
+                DrawingDimension(0, 0, 0, heightDimensions, - (8 + hdhShift) / view.Scale, 1, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, "", "", HeightToleranceStr);
             }
 
             //Вставляем текст с названием марки
@@ -405,7 +463,7 @@ namespace DrawingIsFunKompas.ViewModels
                 IDrawingText drawingText = drawingTexts.Add();
                 drawingText.Allocation = Kompas6Constants.ksAllocationEnum.ksAlCentre;
                 drawingText.X = withDimensions / 2;
-                drawingText.Y = heightDimensions + 20 / view.Scale;
+                drawingText.Y = heightDimensions + (tdhShift + 2) / view.Scale;
                 IText text = (IText)drawingText;
                 text.Str = NameMark;
                 ITextLine textline = text.TextLine[0];

@@ -96,7 +96,7 @@ namespace DrawingIsFunKompas.StaticClasses
                     result.Add(sourse[i] * (counter + 1));
                     prefix.Add($"{counter + 1}х{sourse[i]}=");
                     counter = 0;
-                    shift = 18;
+                    shift = 12;
                 }
                 else if (counter == 1)
                 {

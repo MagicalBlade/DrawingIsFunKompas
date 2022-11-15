@@ -74,6 +74,10 @@
                         </StackPanel>
                         <TextBox Text="{Binding TopDimensionsHoleStr, UpdateSourceTrigger=PropertyChanged}" ToolTip="Верхний размер отверстий"
                                  Grid.Column="2" Grid.Row="1" Height="25" VerticalContentAlignment="Center"/>
+                        <StackPanel Grid.Column="2" Grid.Row="2" Orientation="Vertical">
+                            <CheckBox IsChecked="{Binding IsMelt}" Content="Плавка" Margin="3"/>
+                            <CheckBox IsChecked="{Binding IsNameMark}" Content="Маркировка" Margin="3"/>
+                        </StackPanel>
                         <TextBox Text="{Binding BottomDimensionsHoleStr, UpdateSourceTrigger=PropertyChanged}" ToolTip="Нижний размер отверстий"
                                  Grid.Column="2" Grid.Row="3" Height="25" VerticalContentAlignment="Center"/>
                     </Grid>
