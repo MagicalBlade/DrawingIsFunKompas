@@ -59,11 +59,19 @@ namespace DrawingIsFunKompas.StaticClasses
             {
                 return new string[0];
             }
-            FileInfo[] fileinfo = new DirectoryInfo($"{Directory.GetCurrentDirectory()}\\Data").GetFiles();
+            FileInfo[] fileinfo = new DirectoryInfo($"{Directory.GetCurrentDirectory()}\\Data").GetFiles("D*.frw");
             List<string> namefile = new();
             foreach (var item in fileinfo)
             {
-                namefile.Add(item.Name.Split('.')[0]);
+                string[] itemplit = item.Name.Split('D', '.');
+                if (itemplit.Length == 3)
+                {
+                    namefile.Add(itemplit[1]);
+                }
+                else
+                {
+                    namefile.Add(item.Name);
+                }
             }
             return namefile.ToArray();
         }
