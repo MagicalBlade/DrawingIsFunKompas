@@ -13,6 +13,7 @@ using KompasAPI7;
 using Kompas6API5;
 using DrawingIsFunKompas.StaticClasses;
 using System.IO;
+using Kompas6Constants;
 
 namespace DrawingIsFunKompas.ViewModels
 {
@@ -160,6 +161,7 @@ namespace DrawingIsFunKompas.ViewModels
             }
             IApplication application = (IApplication)kompas.ksGetApplication7();
             IKompasDocument2D kompasDocument2D = (IKompasDocument2D)application.ActiveDocument;
+            IKompasDocument2D1 kompasDocument2D1 = (IKompasDocument2D1)kompasDocument2D;
             if (kompasDocument2D == null)
             {
                 Info = "Откройте или создайте чертеж или фрагмент";
@@ -167,6 +169,11 @@ namespace DrawingIsFunKompas.ViewModels
             }
             //Получаю интерфейс документ версии API5
             ksDocument2D document2DAPI5 = kompas.TransferInterface(kompasDocument2D, 1,0);
+            //Создание группы
+            IDrawingGroups drawingGroups = kompasDocument2D1.DrawingGroups;
+            DrawingGroup drawingGroup = drawingGroups.Add(true, "Накладка");
+            drawingGroup.Open();
+
             //Включаем объединение "отмены"
             document2DAPI5.ksUndoContainer(true);
             IViewsAndLayersManager viewsAndLayersManager = kompasDocument2D.ViewsAndLayersManager;
@@ -226,11 +233,11 @@ namespace DrawingIsFunKompas.ViewModels
                     IInsertionObject insertionObjectx1 = insertionObjects.Add(insertionDefinition);
                     insertionObjectx1.SetPlacement(xh1, y, 0, false);
                     insertionObjectx1.Update();
-                    document2DAPI5.ksDestroyObjects(insertionObjectx1.Reference);
+                    //document2DAPI5.ksDestroyObjects(insertionObjectx1.Reference);
                     IInsertionObject insertionObjectx2 = insertionObjects.Add(insertionDefinition);
                     insertionObjectx2.SetPlacement(xh2, y, 0, false);
                     insertionObjectx2.Update();
-                    document2DAPI5.ksDestroyObjects(insertionObjectx2.Reference);
+                    //document2DAPI5.ksDestroyObjects(insertionObjectx2.Reference);
                     xh1 += topDimensionsHole[w];
                     xh2 -= topDimensionsHole[w];
                 }
@@ -477,7 +484,26 @@ namespace DrawingIsFunKompas.ViewModels
                 drawingText.Update();
             }
 
-            //Включаем объединение "отмены"
+            //Закрываем группу
+            drawingGroup.Close();
+
+            #region Создаем фантом и вставляем группу в чертеж по полученным координатам
+            double xPhantom = 0, yPhantom = 0;
+            ksPhantom phantom = kompas.GetParamStruct(6);
+            phantom.phantom = 1; //Указываем тип фантом "Фантом для сдвига группы"
+            ksType1 type1 = phantom.GetPhantomParam();
+            type1.gr = drawingGroup.Reference;
+            if (document2DAPI5.ksCursorEx(null, ref xPhantom, ref yPhantom, phantom, null) == 0) //Вызываем курсор для указания точки вставки. Если была нажата Esc, прерываем вставку.
+            {
+                document2DAPI5.ksDeleteObj(type1.gr);
+                return;
+            }
+            document2DAPI5.ksMoveObj(drawingGroup.Reference, xPhantom, yPhantom);
+            drawingGroup.Store(); 
+            #endregion
+
+
+            //Завершаем объединение "отмены"
             document2DAPI5.ksUndoContainer(false);
 
             ///Методы
