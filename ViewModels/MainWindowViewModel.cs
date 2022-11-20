@@ -357,49 +357,54 @@ namespace DrawingIsFunKompas.ViewModels
             #region Верхние горизонтальные размеры отверстий
             double topRim = (withDimensions - topDimensionsHole.Sum()) / 2; //Обрез по верхнему краю
             double tdhShift = 12; //Смещиние размера относительно точек построения
-            List<double[]> tdhSingl = new(); //Координаты одиночного размера если есть объединенные размеры
-            double[] tdh = U.FindTriple(topDimensionsHole, ref prefix, ref tdhShift, ref tdhSingl);
-            if (tdhSingl.Any()) tdhShift = 18;
-            //Первый размер
-            if (IsContour)
+            if (bottomDimensionsHole.Sum() != topDimensionsHole.Sum())
             {
-                DrawingDimension(0, heightDimensions, topRim, heightDimensionsHole.Sum(), 0, heightDimensions + (tdhShift - 7) / view.Scale,
-                    Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, "", "");
-            }
-            //Промежуточные размеры
-            double xtdh1 = topRim;
-            double xtdh2 = topRim + tdh[0];
-            for (int i = 0; i < tdh.Length; i++)
-            {
-                DrawingDimension(xtdh1, heightDimensionsHole.Sum(),
-                    xtdh2, heightDimensionsHole.Sum(),
-                    xtdh1 + (xtdh2 - xtdh1) / 2, heightDimensions + (tdhShift - 7) / view.Scale,
-                    Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, prefix[i], "");
-                if (i + 1 == tdh.Length)
+                List<double[]> tdhSingl = new(); //Координаты одиночного размера если есть объединенные размеры
+                double[] tdh = U.FindTriple(topDimensionsHole, ref prefix, ref tdhShift, ref tdhSingl);
+                if (tdhSingl.Any()) tdhShift = 18;
+                //Первый размер
+                if (IsContour)
                 {
-                    break;
+                    DrawingDimension(0, heightDimensions, topRim, heightDimensionsHole.Sum(), 0, heightDimensions + (tdhShift - 7) / view.Scale,
+                        Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, "", "");
                 }
-                xtdh1 += tdh[i];
-                xtdh2 += tdh[i + 1];
-            }
-            //Одиночные размеры если есть объединенные размеры
-            if (tdhSingl.Any())
-            {
-                for (int i = 0; i < tdhSingl.Count; i++)
+                //Промежуточные размеры
+                double xtdh1 = topRim;
+                double xtdh2 = topRim + tdh[0];
+                for (int i = 0; i < tdh.Length; i++)
                 {
-                    DrawingDimension(tdhSingl[i][0] + topRim, heightDimensionsHole.Sum(),
-                    tdhSingl[i][1] + topRim, heightDimensionsHole.Sum(),
-                    tdhSingl[i][0] + topRim + 1, heightDimensions + 4 / view.Scale,
-                    Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, "", "");
+                    DrawingDimension(xtdh1, heightDimensionsHole.Sum(),
+                        xtdh2, heightDimensionsHole.Sum(),
+                        xtdh1 + (xtdh2 - xtdh1) / 2, heightDimensions + (tdhShift - 7) / view.Scale,
+                        Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, prefix[i], "");
+                    if (i + 1 == tdh.Length)
+                    {
+                        break;
+                    }
+                    xtdh1 += tdh[i];
+                    xtdh2 += tdh[i + 1];
+                }
+                //Одиночные размеры если есть объединенные размеры
+                if (tdhSingl.Any())
+                {
+                    for (int i = 0; i < tdhSingl.Count; i++)
+                    {
+                        DrawingDimension(tdhSingl[i][0] + topRim, heightDimensionsHole.Sum(),
+                        tdhSingl[i][1] + topRim, heightDimensionsHole.Sum(),
+                        tdhSingl[i][0] + topRim + 1, heightDimensions + 4 / view.Scale,
+                        Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, "", "");
+                    }
+                }
+                //Последний размер
+                if (IsContour)
+                {
+                    DrawingDimension(topRim + tdh.Sum(), heightDimensionsHole.Sum(),
+                        withDimensions, heightDimensions,
+                        withDimensions + 20, heightDimensions + (tdhShift - 7) / view.Scale, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, "", "*");
                 }
             }
-            //Последний размер
-            if (IsContour)
-            {
-                DrawingDimension(topRim + tdh.Sum(), heightDimensionsHole.Sum(),
-                    withDimensions, heightDimensions,
-                    withDimensions + 20, heightDimensions + (tdhShift - 7) / view.Scale, Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, "", "*");
-            }
+            
+
             #endregion
 
             #region Вертикальные размеры отверстий
@@ -417,24 +422,27 @@ namespace DrawingIsFunKompas.ViewModels
             }
 
             //Промежуточные размеры
-            double xd1 = bottomRim;
-            double xd2 = bottomRim;
-            double yhdh1 = hdh[0];
-            double yhdh2 = hdh[0] + hdh[1];
-            for (int i = 1; i < hdh.Length; i++)
+            if (hdh.Length != 1)
             {
-                xd1 -= heightDimensionsHoletemp[i - 1] * (topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / 2 / heightDimensionsHoletemp.Sum();
-                xd2 -= heightDimensionsHoletemp[i] * (topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / 2 / heightDimensionsHoletemp.Sum();
-                DrawingDimension(xd1, yhdh1,
-                    xd2, yhdh2,
-                    - (hdhShift) / view.Scale , yhdh1 + (yhdh2 - yhdh1) / 2,
-                    Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, prefix[i], "");
-                if (i + 1 == hdh.Length)
+                double xd1 = bottomRim;
+                double xd2 = bottomRim;
+                double yhdh1 = hdh[0];
+                double yhdh2 = hdh[0] + hdh[1];
+                for (int i = 1; i < hdh.Length; i++)
                 {
-                    break;
+                    xd1 -= heightDimensionsHoletemp[i - 1] * (topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / 2 / heightDimensionsHoletemp.Sum();
+                    xd2 -= heightDimensionsHoletemp[i] * (topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / 2 / heightDimensionsHoletemp.Sum();
+                    DrawingDimension(xd1, yhdh1,
+                        xd2, yhdh2,
+                        - (hdhShift) / view.Scale , yhdh1 + (yhdh2 - yhdh1) / 2,
+                        Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDVertical, prefix[i], "");
+                    if (i + 1 == hdh.Length)
+                    {
+                        break;
+                    }
+                    yhdh1 += hdh[i];
+                    yhdh2 += hdh[i + 1];
                 }
-                yhdh1 += hdh[i];
-                yhdh2 += hdh[i + 1];
             }
             //Одиночные размеры если есть объединенные размеры
             if (hdhSingl.Any())
