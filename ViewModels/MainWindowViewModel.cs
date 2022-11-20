@@ -14,11 +14,19 @@ using Kompas6API5;
 using DrawingIsFunKompas.StaticClasses;
 using System.IO;
 using Kompas6Constants;
+using System.Runtime.InteropServices;
 
 namespace DrawingIsFunKompas.ViewModels
 {
     internal partial class MainWindowViewModel : ObservableValidator
     {
+        #region Для вывода окна на передний план
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        [DllImport("USER32.DLL")]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+        #endregion
+
         /// <summary>
         /// Марка накладки
         /// </summary>
@@ -486,6 +494,9 @@ namespace DrawingIsFunKompas.ViewModels
 
             //Закрываем группу
             drawingGroup.Close();
+
+            IntPtr intPtr = (IntPtr)kompas.ksGetHWindow();
+            SetForegroundWindow(intPtr); //Делаем окно активным
 
             #region Создаем фантом и вставляем группу в чертеж по полученным координатам
             double xPhantom = 0, yPhantom = 0;
