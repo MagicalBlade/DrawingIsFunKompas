@@ -9,6 +9,21 @@
     <Window.DataContext>
         <viewmodels:MainWindowViewModel/>
     </Window.DataContext>
+    <Window.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="25" />
+            <Setter Property="VerticalContentAlignment" Value="Center"/>           
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="3" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="Padding" Value="3" />
+            <Setter Property="Margin" Value="3" />
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
@@ -41,14 +56,14 @@
                             </StackPanel.LayoutTransform>
                             <Label Content="Ширина накладки:"/>
                             <TextBox Text="{Binding HeightDimensionsStr, UpdateSourceTrigger=PropertyChanged}" ToolTip="Высота накладки"
-                                     Height="25" MinWidth ="70"  VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                                     Height="25" MinWidth ="70"  VerticalContentAlignment="Center" HorizontalContentAlignment="Center" TabIndex="2"/>
                             <Label Content="±"/>
                             <TextBox Text="{Binding HeightToleranceStr, UpdateSourceTrigger=PropertyChanged}"
                                      Height="25" MinWidth="40" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
                         </StackPanel>
 
                         <TextBox Text="{Binding HeightDimensionsHoleStr, UpdateSourceTrigger=PropertyChanged}" ToolTip="Размер отверстий по высоте"
-                                 Grid.Column="1" Grid.Row="2" Height="25" VerticalContentAlignment="Center" RenderTransformOrigin="0.5,0.5" >
+                                 Grid.Column="1" Grid.Row="2" RenderTransformOrigin="0.5,0.5" TabIndex="5">
                             <TextBox.LayoutTransform>
                                 <RotateTransform Angle="-90"/>
                             </TextBox.LayoutTransform>
@@ -57,34 +72,44 @@
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Label Content="Название марки:"
                                        VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-                                <TextBox Text="{Binding NameMark}"
-                                Height="25" MinWidth="70" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="3"/>
+                                <TextBox Text="{Binding NameMark, UpdateSourceTrigger=PropertyChanged}"
+                                MinWidth="70" HorizontalContentAlignment="Center" Margin="3" TabIndex="0"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Label Content="Ширина накладки:"
                                        VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
                                 <TextBox Text="{Binding WithDimensionsStr, UpdateSourceTrigger=PropertyChanged}" ToolTip="Ширина накладки"
-                                         Height="25" MinWidth="70" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                                         MinWidth="70" HorizontalContentAlignment="Center" TabIndex="1"/>
                                 <Label Content="±"
                                        VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
                                 <TextBox Text="{Binding WithToleranceStr, UpdateSourceTrigger=PropertyChanged}"
-                                         Height="25" MinWidth="40" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                                         MinWidth="40" HorizontalContentAlignment="Center"/>
 
                             </StackPanel>
                         </StackPanel>
                         <TextBox Text="{Binding TopDimensionsHoleStr, UpdateSourceTrigger=PropertyChanged}" ToolTip="Верхний размер отверстий"
-                                 Grid.Column="2" Grid.Row="1" Height="25" VerticalContentAlignment="Center"/>
+                                 Grid.Column="2" Grid.Row="1" Height="25" VerticalContentAlignment="Center" TabIndex="3"/>
                         <StackPanel Grid.Column="2" Grid.Row="2" Orientation="Vertical">
-                            <CheckBox IsChecked="{Binding IsMelt}" Content="Плавка" Margin="3"/>
-                            <CheckBox IsChecked="{Binding IsNameMark}" Content="Маркировка" Margin="3"/>
+                            <CheckBox IsChecked="{Binding IsContour}" Content="Чертить контур"/>
+                            <CheckBox IsChecked="{Binding IsMelt}" Content="Плавка"/>
+                            <CheckBox IsChecked="{Binding IsNameMark}" Content="Маркировка"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Диаметр отверстия:"
+                               Height="25" Margin="3"/>
+                                <ComboBox ItemsSource="{Binding HoleDiameters}" SelectedItem="{Binding SelectHoleDiameter}"
+                                  Height="25" Width="60" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox Text="{Binding NameMark}" IsReadOnly="True" MinWidth="40"/>
+                                <TextBox MinWidth="40"/>
+                                <TextBox Text="Толщина" MinWidth="40"/>
+                            </StackPanel>
                         </StackPanel>
                         <TextBox Text="{Binding BottomDimensionsHoleStr, UpdateSourceTrigger=PropertyChanged}" ToolTip="Нижний размер отверстий"
-                                 Grid.Column="2" Grid.Row="3" Height="25" VerticalContentAlignment="Center"/>
+                                 Grid.Column="2" Grid.Row="3" TabIndex="4"/>
                     </Grid>
-                    <StackPanel Grid.Row="1">
-                        <ComboBox ItemsSource="{Binding HoleDiameters}" SelectedItem="{Binding SelectHoleDiameter}"/>
-                        <CheckBox IsChecked="{Binding IsContour}" Content="Чертить контур" Margin="3"/>
-                        <Button Content="Начертить" VerticalAlignment="Bottom" Command="{Binding DrawingCommand}"/>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                        <Button Content="Начертить" Command="{Binding DrawingCommand}"/>
                     </StackPanel>
                 </Grid>
             </TabItem>

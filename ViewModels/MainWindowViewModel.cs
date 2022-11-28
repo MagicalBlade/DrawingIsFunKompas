@@ -45,7 +45,7 @@ namespace DrawingIsFunKompas.ViewModels
         [NotifyDataErrorInfo]
         [Required]
         [RegularExpression(regDimensions)]
-        private string _withDimensionsStr = "680,00";
+        private string _withDimensionsStr = "680";
         /// <summary>
         /// Допуск на ширину накладки
         /// </summary>
@@ -61,7 +61,7 @@ namespace DrawingIsFunKompas.ViewModels
         [NotifyDataErrorInfo]
         [Required]
         [RegularExpression(regDimensions)]
-        private string _heightDimensionsStr = "730,00";
+        private string _heightDimensionsStr = "730";
         /// <summary>
         /// Допуск на высоту накладки
         /// </summary>
@@ -132,7 +132,7 @@ namespace DrawingIsFunKompas.ViewModels
         private void Drawing()
         {
             Info = "";
-            if (!File.Exists($"{Directory.GetCurrentDirectory()}\\Data\\{SelectHoleDiameter}.frw"))
+            if (!File.Exists($"{Directory.GetCurrentDirectory()}\\Data\\D{SelectHoleDiameter}.frw"))
             {
                 Info = "Не найден файл с обозначением отверстия. Проверьте наличие фрагментов в папке Data.";
                 return;
@@ -218,7 +218,7 @@ namespace DrawingIsFunKompas.ViewModels
             IInsertionObjects insertionObjects = drawingContainer.InsertionObjects;
             IInsertionsManager insertionsManager = (IInsertionsManager)kompasDocument2D;
             InsertionDefinition insertionDefinition = insertionsManager.AddDefinition(
-                    Kompas6Constants.ksInsertionTypeEnum.ksTBodyFragment, "", $"{Directory.GetCurrentDirectory()}\\Data\\{SelectHoleDiameter}.frw");
+                    Kompas6Constants.ksInsertionTypeEnum.ksTBodyFragment, "", $"{Directory.GetCurrentDirectory()}\\Data\\D{SelectHoleDiameter}.frw");
             for (int h = 0; h < heightDimensionsHoletemp.Length; h++)
             {
                 y += heightDimensionsHoletemp[h];
@@ -247,7 +247,7 @@ namespace DrawingIsFunKompas.ViewModels
                     insertionObjectx2.Update();
                     //document2DAPI5.ksDestroyObjects(insertionObjectx2.Reference);
                     xh1 += topDimensionsHole[w];
-                    xh2 -= topDimensionsHole[w];
+                    xh2 -= topDimensionsHole[topDimensionsHole.Length - w - 1];
                 }
             }
 
