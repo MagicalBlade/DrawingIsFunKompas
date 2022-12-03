@@ -71,6 +71,7 @@ namespace DrawingIsFunKompas.ViewModels
         [RegularExpression(regDimensions)]
         private string _heightToleranceStr = "1";
         #endregion
+
         #region Размеры отверстий
         /// <summary>
         /// Верхний размер отверстий
@@ -97,6 +98,7 @@ namespace DrawingIsFunKompas.ViewModels
         [RegularExpression(regDimensionsHole)]
         private string _heightDimensionsHoleStr = "45 5*80 2*120";
         #endregion
+
         /// <summary>
         /// Список диаметров отверстий
         /// </summary>
@@ -107,6 +109,11 @@ namespace DrawingIsFunKompas.ViewModels
         /// </summary>
         [ObservableProperty]
         private string _selectHoleDiameter = "25";
+        /// <summary>
+        /// Есть расскрытие?
+        /// </summary>
+        [ObservableProperty]
+        private bool _isOpening = false;
         /// <summary>
         /// Черить контур?
         /// </summary>
@@ -122,7 +129,9 @@ namespace DrawingIsFunKompas.ViewModels
         /// </summary>
         [ObservableProperty]
         private bool _isNameMark = true;
-
+        /// <summary>
+        /// Строка состояния
+        /// </summary>
         [ObservableProperty]
         private string _info = "";
         /// <summary>
@@ -152,7 +161,14 @@ namespace DrawingIsFunKompas.ViewModels
             double[] topDimensionsHole = U.ParsingDimensions(TopDimensionsHoleStr).ToArray();
             double[] bottomDimensionsHole = U.ParsingDimensions(BottomDimensionsHoleStr).ToArray();
             double[] heightDimensionsHole = U.ParsingDimensions(HeightDimensionsHoleStr).ToArray();
-
+            if (heightDimensionsHole.Length == 1)
+            {
+                IsOpening = false;
+            }
+            if (!IsOpening)
+            {
+                topDimensionsHole = bottomDimensionsHole;
+            }
             if (topDimensionsHole.Length != bottomDimensionsHole.Length)
             {
                 Info = "Шаги верхних и нижних размеров, по отверстиям, должны быть равны.";
@@ -222,8 +238,11 @@ namespace DrawingIsFunKompas.ViewModels
             for (int h = 0; h < heightDimensionsHoletemp.Length; h++)
             {
                 y += heightDimensionsHoletemp[h];
-                x1 -=  heightDimensionsHoletemp[h] * (topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / 2 / heightDimensionsHoletemp.Sum();
-                x2 +=  heightDimensionsHoletemp[h] * (topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / 2 / heightDimensionsHoletemp.Sum();
+                if (heightDimensionsHole.Length != 1)
+                {
+                    x1 -=  heightDimensionsHoletemp[h] * (topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / 2 / heightDimensionsHoletemp.Sum();
+                    x2 +=  heightDimensionsHoletemp[h] * (topDimensionsHole.Sum() - bottomDimensionsHole.Sum()) / 2 / heightDimensionsHoletemp.Sum();
+                }
 
                 ILineSegments lineSegments = drawingContainer.LineSegments;
                 ILineSegment lineSegment = lineSegments.Add();
@@ -321,18 +340,21 @@ namespace DrawingIsFunKompas.ViewModels
             //Промежуточные размеры
             double xbdh1 = bottomRim;
             double xbdh2 = bottomRim + bdh[0];
-            for (int i = 0; i < bdh.Length; i++)
+            if (bdh[0] != 0)
             {
-                DrawingDimension(xbdh1, heightDimensionsHole[0],
-                    xbdh2, heightDimensionsHole[0],
-                    xbdh1 + (xbdh2 - xbdh1) / 2, -bdhShift / view.Scale,
-                    Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, prefix[i], "");
-                if (i + 1 == bdh.Length)
+                for (int i = 0; i < bdh.Length; i++)
                 {
-                    break;
+                    DrawingDimension(xbdh1, heightDimensionsHole[0],
+                        xbdh2, heightDimensionsHole[0],
+                        xbdh1 + (xbdh2 - xbdh1) / 2, -bdhShift / view.Scale,
+                        Kompas6Constants.ksLineDimensionOrientationEnum.ksLinDHorizontal, prefix[i], "");
+                    if (i + 1 == bdh.Length)
+                    {
+                        break;
+                    }
+                    xbdh1 += bdh[i];
+                    xbdh2 += bdh[i + 1];
                 }
-                xbdh1 += bdh[i];
-                xbdh2 += bdh[i + 1];
             }
             //Одиночные размеры если есть объединенные размеры
             if (bdhSingl.Any())
@@ -357,7 +379,7 @@ namespace DrawingIsFunKompas.ViewModels
             #region Верхние горизонтальные размеры отверстий
             double topRim = (withDimensions - topDimensionsHole.Sum()) / 2; //Обрез по верхнему краю
             double tdhShift = 12; //Смещиние размера относительно точек построения
-            if (bottomDimensionsHole.Sum() != topDimensionsHole.Sum())
+            if (IsOpening)
             {
                 List<double[]> tdhSingl = new(); //Координаты одиночного размера если есть объединенные размеры
                 double[] tdh = U.FindTriple(topDimensionsHole, ref prefix, ref tdhShift, ref tdhSingl);
@@ -486,7 +508,14 @@ namespace DrawingIsFunKompas.ViewModels
                 IDrawingText drawingText = drawingTexts.Add();
                 drawingText.Allocation = Kompas6Constants.ksAllocationEnum.ksAlCentre;
                 drawingText.X = withDimensions / 2;
-                drawingText.Y = heightDimensions + (tdhShift + 2) / view.Scale;
+                if (IsOpening)
+                {
+                    drawingText.Y = heightDimensions + (tdhShift + 2) / view.Scale;
+                }
+                else
+                {
+                    drawingText.Y = heightDimensions + 6 / view.Scale;
+                }
                 IText text = (IText)drawingText;
                 text.Str = NameMark;
                 ITextLine textline = text.TextLine[0];
